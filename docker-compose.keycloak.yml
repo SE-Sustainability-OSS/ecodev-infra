@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # BEGIN keycloak
+  keycloak:
+    image: jboss/keycloak
+    restart: always
+    container_name: keycloak
+    labels:
+      # Enable Traefik for this specific "keycloak" service
+      - traefik.enable=true
+      # Define the port inside of the Docker service to use
+      - traefik.http.services.keycloak.loadbalancer.server.port=8080
+      # Make Traefik use this domain in HTTP
+      - traefik.http.routers.keycloak-http.entrypoints=http
+      - traefik.http.routers.keycloak-http.rule=Host(`${keycloak_url}`)
+      # Use the traefik-network network  (defined in docker.compose.traefik.yml)
+      - traefik.docker.network=traefik-network
+      # Make Traefik use this domain in HTTPS
+      - traefik.http.routers.keycloak-https.entrypoints=https
+      - traefik.http.routers.keycloak-https.rule=Host(`${keycloak_url}`)
+      - traefik.http.routers.keycloak-https.tls=true
+      # Use the "le" (Let's Encrypt) resolver
+      - traefik.http.routers.keycloak-https.tls.certresolver=le
+      # https-redirect middleware creation to redirect HTTP to HTTPS
+      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
+      # Plug middleware to redirect HTTP to HTTPS
+      - traefik.http.routers.keycloak-http.middlewares=https-redirect
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+    networks:
+      - app-network
+      # Use the public network created to be shared between Traefik and
+      # any other service that needs to be publicly available with HTTPS
+      - traefik-network
+  # END keycloak
+  # BEGIN traefik forward auth
+  traefik-forward-auth:
+    image: thomseddon/traefik-forward-auth:2
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-network
+      - traefik.http.routers.traefik-forward-auth.entrypoints=websecure
+      - traefik.http.routers.traefik-forward-auth.rule=Host(`${jupyter_url}/_oauth`)
+      - traefik.http.middlewares.traefik-forward-auth.forwardauth.address=http://traefik-forward-auth:4181
+      - traefik.http.middlewares.traefik-forward-auth.forwardauth.authResponseHeaders=X-Forwarded-User
+      - traefik.http.services.traefik-forward-auth.loadbalancer.server.port=4181
+    env_file:
+      - ./.keycloak.env
+    networks:
+      - app-network
+      # Use the public network created to be shared between Traefik and
+      # any other service that needs to be publicly available with HTTPS
+      - traefik-network
+  # END traefik forward auth
+
+networks:
+  app-network:
+    external: true
+  traefik-network:
+    external: true
