@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  # BEGIN ofelia
+  ofelia:
+    image: mcuadros/ofelia:latest
+    restart: always
+    environment:
+      TZ: Europe/Paris
+    command: daemon --docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - app-network
+  # END ofelia
+
+networks:
+  app-network:
+    external: true

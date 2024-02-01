@@ -1,0 +1,28 @@
+# Ignoring backup folders
+backup/
+# Ignoring PyCharm cach files
+/.idea
+/backend/.idea
+/backend/app/.idea
+__pycache__/
+venv/
+.python-version
+.mypy_cache/
+# Ignoring PyCharm cach files
+# Ignoring files other than code
+*.png
+*.xlsx
+# Ignoring notebooks
+.ipynb
+.ipynb_checkpoints
+*.ipynb
+*.ipynb_checkpoints
+# ignoring data
+db_data/
+s3_data/
+bookstack_app_data/
+bookstack_db_data/
+bookstack_storage_data/
+#ignoring environment file
+.env
+.bookstack.env

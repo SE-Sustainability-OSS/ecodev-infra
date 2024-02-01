@@ -1,0 +1,8 @@
+services:
+  db_admin:
+    ports:
+      - ${pgadmin_port:-5050}:80
+
+networks:
+  traefik-network:
+    external: false

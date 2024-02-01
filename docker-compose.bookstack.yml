@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # BEGIN bookstack
+  bookstack:
+    image: solidnerd/bookstack:23.6.2
+    container_name: bookstack
+    restart: always
+    labels:
+      # Enable Traefik for this specific "bookstack" service
+      - traefik.enable=true
+      # Define the port inside the Docker service to use
+      - traefik.http.services.bookstack.loadbalancer.server.port=8080
+      # Make Traefik use this domain in HTTP
+      - traefik.http.routers.bookstack-http.entrypoints=http
+      - traefik.http.routers.bookstack-http.rule=Host(`${bookstack_url}`)
+      # Use the traefik-network network (defined in docker.compose.traefik.yml)
+      - traefik.docker.network=traefik-network
+      # Make Traefik use this domain in HTTPS
+      - traefik.http.routers.bookstack-https.entrypoints=https
+      - traefik.http.routers.bookstack-https.rule=Host(`${bookstack_url}`)
+      - traefik.http.routers.bookstack-https.tls=true
+      # Use the "le" (Let's Encrypt) resolver
+      - traefik.http.routers.bookstack-https.tls.certresolver=le
+      # https-redirect middleware creation to redirect HTTP to HTTPS
+      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
+      # Plug middleware to redirect HTTP to HTTPS
+      - traefik.http.routers.bookstack-http.middlewares=https-redirect
+    env_file:
+      - ./.bookstack.env
+    volumes:
+      # Where the bookstack uploaded data are stored. Be sure that folder rights allow for writing!
+      - ./bookstack_app_data:/var/www/bookstack/public/uploads
+      - ./bookstack_storage_data:/var/www/bookstack/storage/uploads
+    depends_on:
+      - bookstack_db
+    networks:
+      - app-network
+      # Use the public network created to be shared between Traefik and
+      # any other service that needs to be publicly available with HTTPS
+      - traefik-network
+  # END bookstack
+  # BEGIN bookstack_db
+  bookstack_db:
+    image: mysql:8.0
+    container_name: bookstack_db
+    restart: always
+    env_file:
+      - ./.bookstack.env
+    volumes:
+      - ./bookstack_db_data:/var/lib/mysql
+    networks:
+      - app-network
+  # END bookstack_db
+
+networks:
+  app-network:
+    external: true
+  traefik-network:
+    external: true

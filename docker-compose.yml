@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # BEGIN db
+  db:
+    image: postgres:14.2-alpine
+    restart: always
+    container_name: db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./db_data/:/var/lib/postgresql/data/
+    env_file:
+      - ./.env
+    networks:
+      - app-network
+  # END db
+  # BEGIN db_admin
+  db_admin:
+    image: dpage/pgadmin4:6.11
+    restart: always
+    container_name: db_admin
+    labels:
+      # Enable Traefik for this specific "pgadmin" service
+      - traefik.enable=true
+      # Define the port inside of the Docker service to use
+      - traefik.http.services.pgadmin.loadbalancer.server.port=80
+      # Make Traefik use this domain in HTTP
+      - traefik.http.routers.pgadmin-http.entrypoints=http
+      - traefik.http.routers.pgadmin-http.rule=Host(`${pgadmin_url}`)
+      # Use the traefik-network network (defined in docker.compose.traefik.yml)
+      - traefik.docker.network=traefik-network
+      # Make Traefik use this domain in HTTPS
+      - traefik.http.routers.pgadmin-https.entrypoints=https
+      - traefik.http.routers.pgadmin-https.rule=Host(`${pgadmin_url}`)
+      - traefik.http.routers.pgadmin-https.tls=true
+      # Use the "le" (Let's Encrypt) resolver
+      - traefik.http.routers.pgadmin-https.tls.certresolver=le
+      # https-redirect middleware creation to redirect HTTP to HTTPS
+      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
+       # Plug middleware to redirect HTTP to HTTPS
+      - traefik.http.routers.pgadmin-http.middlewares=https-redirect
+    env_file:
+      - ./.env
+    networks:
+      - app-network
+      # Use the public network created to be shared between Traefik and
+      # any other service that needs to be publicly available with HTTPS
+      - traefik-network
+  # END db_admin
+
+networks:
+  app-network:
+    name: app-network
+  traefik-network:
+    external: true
