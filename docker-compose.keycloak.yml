@@ -28,7 +28,7 @@ services:
       # Plug middleware to redirect HTTP to HTTPS
       - traefik.http.routers.keycloak-http.middlewares=https-redirect
     env_file:
-      - ./.env
+      - ./.keycloak.env
     depends_on:
       - db
     networks:

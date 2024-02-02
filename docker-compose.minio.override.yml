@@ -1,0 +1,8 @@
+services:
+  minio_frontend:
+    ports:
+      - ${minio_port:-9000}:9000
+
+networks:
+  traefik-network:
+    external: false

@@ -23,23 +23,29 @@ HELP_DESCRIPTION = \
 help:		## Show this help.
 	@perl -e '$(HELP_DESCRIPTION)' $(MAKEFILE_LIST)
 
-traefik-launch:            ##@docker Launch traefik production container
+traefik-launch:            ##@prod Launch traefik production container
 	docker-compose -f docker-compose.traefik.yml up -d
 
-bookstack-launch:            ##@docker Launch bookstack production containers
+bookstack-launch:            ##@prod Launch bookstack production containers
 	docker-compose -f docker-compose.bookstack.yml up -d
 
-db-launch:            ##@docker Launch db production containers
+db-launch:            ##@prod Launch db production containers
 	docker-compose -f docker-compose.yml up -d
 
-minio-launch:            ##@docker Launch minio production containers
+db-dev-launch:            ##@dev Launch db dev containers
+	docker-compose up -d
+
+minio-launch:            ##@prod Launch minio production containers
+	docker-compose -f docker-compose.minio.yml -f docker-compose.minio.override.yml up -d
+
+minio-dev-launch:            ##@dev Launch minio dev containers
 	docker-compose -f docker-compose.minio.yml up -d
 
-ofelia-launch:            ##@docker Launch ofelia production containers
+ofelia-launch:            ##@prod Launch ofelia production containers
 	docker-compose -f docker-compose.bookstack.yml up -d
 
-keycloak-launch:            ##@docker Launch keycloak production containers
+keycloak-launch:            ##@prod Launch keycloak production containers
 	docker-compose -f docker-compose.keycloak.yml up -d
 
-dev-launch:            ##@docker Launch db dev containers
-	docker-compose up -d
+
+
