@@ -42,7 +42,7 @@ minio-dev-launch:            ##@dev Launch minio dev containers
 	docker compose -f docker-compose.minio.yml up -d
 
 ofelia-launch:            ##@prod Launch ofelia production containers
-	docker compose -f docker-compose.bookstack.yml up -d
+	docker compose -f docker-compose.ofelia.yml up -d
 
 keycloak-launch:            ##@prod Launch keycloak production containers
 	docker compose -f docker-compose.keycloak.yml up -d
