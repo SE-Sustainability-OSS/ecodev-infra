@@ -24,28 +24,28 @@ help:		## Show this help.
 	@perl -e '$(HELP_DESCRIPTION)' $(MAKEFILE_LIST)
 
 traefik-launch:            ##@prod Launch traefik production container
-	docker-compose -f docker-compose.traefik.yml up -d
+	docker compose -f docker-compose.traefik.yml up -d
 
 bookstack-launch:            ##@prod Launch bookstack production containers
-	docker-compose -f docker-compose.bookstack.yml up -d
+	docker compose -f docker-compose.bookstack.yml up -d
 
 db-launch:            ##@prod Launch db production containers
-	docker-compose -f docker-compose.yml up -d
+	docker compose -f docker-compose.yml up -d
 
 db-dev-launch:            ##@dev Launch db dev containers
-	docker-compose up -d
+	docker compose up -d
 
 minio-launch:            ##@prod Launch minio production containers
-	docker-compose -f docker-compose.minio.yml -f docker-compose.minio.override.yml up -d
+	docker compose -f docker-compose.minio.yml -f docker-compose.minio.override.yml up -d
 
 minio-dev-launch:            ##@dev Launch minio dev containers
-	docker-compose -f docker-compose.minio.yml up -d
+	docker compose -f docker-compose.minio.yml up -d
 
 ofelia-launch:            ##@prod Launch ofelia production containers
-	docker-compose -f docker-compose.bookstack.yml up -d
+	docker compose -f docker-compose.bookstack.yml up -d
 
 keycloak-launch:            ##@prod Launch keycloak production containers
-	docker-compose -f docker-compose.keycloak.yml up -d
+	docker compose -f docker-compose.keycloak.yml up -d
 
 
 
