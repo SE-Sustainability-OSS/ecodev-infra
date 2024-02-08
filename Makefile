@@ -19,9 +19,21 @@ HELP_DESCRIPTION = \
     }; \
     print "\n"; }
 
+# If the first argument is "setup-vm"...
+ifeq (setup-vm,$(firstword $(MAKECMDGOALS)))
+  # use the rest as arguments for "setup-vm"
+  RUN_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  # ...and turn them into do-nothing targets
+  $(eval $(RUN_ARGS):;@:)
+endif
+
 
 help:		## Show this help.
 	@perl -e '$(HELP_DESCRIPTION)' $(MAKEFILE_LIST)
+
+.PHONY: setup-vm
+setup-vm:            ##@prod Setup a vanilla ubuntu 2(0-2-4).04 VM
+	sh ./setup.sh $(RUN_ARGS)
 
 traefik-launch:            ##@prod Launch traefik production container
 	docker compose -f docker-compose.traefik.yml up -d
