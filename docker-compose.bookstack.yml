@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # BEGIN bookstack
   bookstack:
-    image: solidnerd/bookstack:23.6.2
+    image: solidnerd/bookstack:23.12.2
     container_name: bookstack
     restart: always
     labels:
