@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # BEGIN pypi
+  private_pypi:
+    image: pypiserver/pypiserver:latest
+    container_name: private_pypi
+    restart: always
+    command: -P /data/auth/.htpasswd -a update,download,list /data/packages
+    volumes:
+      - ./pypi_data:/data/packages
+      - ./pypi_auth:/data/auth
+    env_file:
+      - ./.pypi.env
+    labels:
+      # Enable Traefik for this specific "pypi-api" service
+      - traefik.enable=true
+      # Use the traefik-network network (defined in docker.compose.traefik.yml)
+      - traefik.docker.network=traefik-network
+      # https-redirect middleware to redirect HTTP to HTTPS
+      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
+      # Make Traefik use this domain in HTTP
+      - traefik.http.routers.pypi-api-http.entrypoints=http
+      - traefik.http.routers.pypi-api-http.rule=Host(`${fastapi_url}`)
+      # Make Traefik use this domain in HTTPS
+      - traefik.http.routers.pypi-api-https.entrypoints=https
+      - traefik.http.routers.pypi-api-https.rule=Host(`${fastapi_url}`)
+      - traefik.http.routers.pypi-api-https.tls=true
+      # Use the "le" (Let's Encrypt) resolver
+      - traefik.http.routers.pypi-api-https.tls.certresolver=le
+      # Plug middleware to redirect HTTP to HTTPS
+      - traefik.http.routers.pypi-api-http.middlewares=https-redirect
+
+    networks:
+      - app-network
+      # Use the public network created to be shared between Traefik and
+      # any other service that needs to be publicly available with HTTPS
+      - traefik-network
+  # END pypi
+
+# NETWORKS
+networks:
+  app-network:
+   name: app-network
+   external: true
+  traefik-network:
+    external: true
