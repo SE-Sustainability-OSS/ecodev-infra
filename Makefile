@@ -59,5 +59,6 @@ ofelia-launch:            ##@prod Launch ofelia production containers
 keycloak-launch:            ##@prod Launch keycloak production containers
 	docker compose -f docker-compose.keycloak.yml up -d
 
-
+pypi-launch:            ##@prod Launch pypi production container
+	docker compose -f docker-compose.pypi.yml up -d
 
