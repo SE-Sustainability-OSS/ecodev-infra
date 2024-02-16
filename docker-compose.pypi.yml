@@ -22,10 +22,10 @@ services:
       - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
       # Make Traefik use this domain in HTTP
       - traefik.http.routers.pypi-api-http.entrypoints=http
-      - traefik.http.routers.pypi-api-http.rule=Host(`${fastapi_url}`)
+      - traefik.http.routers.pypi-api-http.rule=Host(`${pypi_url}`)
       # Make Traefik use this domain in HTTPS
       - traefik.http.routers.pypi-api-https.entrypoints=https
-      - traefik.http.routers.pypi-api-https.rule=Host(`${fastapi_url}`)
+      - traefik.http.routers.pypi-api-https.rule=Host(`${pypi_url}`)
       - traefik.http.routers.pypi-api-https.tls=true
       # Use the "le" (Let's Encrypt) resolver
       - traefik.http.routers.pypi-api-https.tls.certresolver=le
