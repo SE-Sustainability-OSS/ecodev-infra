@@ -62,3 +62,8 @@ keycloak-launch:            ##@prod Launch keycloak production containers
 pypi-launch:            ##@prod Launch pypi production container
 	docker compose -f docker-compose.pypi.yml up -d
 
+kuma-launch:            ##@prod Launch kuma production container
+	docker compose -f docker-compose.kuma.yml up -d
+
+dozzle-launch:            ##@prod Launch dozzle production container
+	docker compose -f docker-compose.dozzle.yml up -d
