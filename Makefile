@@ -67,3 +67,8 @@ kuma-launch:            ##@prod Launch kuma production container
 
 dozzle-launch:            ##@prod Launch dozzle production container
 	docker compose -f docker-compose.dozzle.yml up -d
+
+mongo-launch:            ##@prod Launch mongo production container
+	docker compose -f docker-compose.mongo.yml up -d
+
+  

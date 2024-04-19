@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # BEGIN mongo-db
+  mongo_db:
+    image: mongo
+    restart: always
+    container_name: mongo_db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: $mongo_username
+      MONGO_INITDB_ROOT_PASSWORD: $mongo_password
+
+    networks:
+      - app-network
+
+  mongo_admin:
+    image: mongo-express:latest
+    container_name: mongo_admin
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: $mongo_username
+      ME_CONFIG_MONGODB_ADMINPASSWORD: $mongo_password
+      ME_CONFIG_MONGODB_SERVER: mongo_db
+
+    labels:
+      # Enable Traefik for this specific "mongo_admin" service
+      - traefik.enable=true
+      # Define the port inside of the Docker service to use
+      - traefik.http.services.mongoexpress.loadbalancer.server.port=8081
+      # Make Traefik use this domain in HTTP
+      - traefik.http.routers.mongoexpress-http.entrypoints=http
+      - traefik.http.routers.mongoexpress-http.rule=Host(`${mongoexpress_url}`)
+      # Use the traefik-network network (declared below)
+      - traefik.docker.network=traefik-network
+      # Make Traefik use this domain in HTTPS
+      - traefik.http.routers.mongoexpress-https.entrypoints=https
+      - traefik.http.routers.mongoexpress-https.rule=Host(`${mongoexpress_url}`)
+      - traefik.http.routers.mongoexpress-https.tls=true
+      # Use the "le" (Let's Encrypt) resolver
+      - traefik.http.routers.mongoexpress-https.tls.certresolver=le
+      # https-redirect middleware to redirect HTTP to HTTPS
+      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
+      # Middleware to redirect HTTP to HTTPS
+      - traefik.http.routers.mongoexpress-http.middlewares=https-redirect
+    networks:
+      - app-network
+      - traefik-network
+    depends_on:
+      - mongo_db
+    # END mongo-db
+
+networks:
+  app-network:
+    external: true
+  traefik-network:
+    external: true
