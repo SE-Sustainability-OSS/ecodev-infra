@@ -71,4 +71,7 @@ dozzle-launch:            ##@prod Launch dozzle production container
 mongo-launch:            ##@prod Launch mongo production container
 	docker compose -f docker-compose.mongo.yml up -d
 
+chroma-launch:            ##@prod Launch chroma production container
+	docker compose -f docker-compose.chroma.yml up -d
+
   
