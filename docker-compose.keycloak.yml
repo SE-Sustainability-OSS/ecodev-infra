@@ -38,6 +38,7 @@ services:
   # BEGIN traefik forward auth
   traefik-forward-auth:
     image: thomseddon/traefik-forward-auth:2
+    restart: always
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik-network
