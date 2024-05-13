@@ -44,10 +44,10 @@ services:
       - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
       - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
       # Fail2ban middleware, see https://github.com/tomMoulard/fail2ban for more information
-      - traefik.https.middlewares.my-fail2ban.plugin.fail2ban.rules.bantime=1h
-      - traefik.https.middlewares.my-fail2ban.plugin.fail2ban.rules.enabled=true
-      - traefik.https.middlewares.my-fail2ban.plugin.fail2ban.rules.findtime=1m
-      - traefik.https.middlewares.my-fail2ban.plugin.fail2ban.rules.maxretry=200
+      - traefik.http.middlewares.fail2ban.plugin.fail2ban.rules.bantime=1h
+      - traefik.http.middlewares.fail2ban.plugin.fail2ban.rules.enabled=true
+      - traefik.http.middlewares.fail2ban.plugin.fail2ban.rules.findtime=1m
+      - traefik.http.middlewares.fail2ban.plugin.fail2ban.rules.maxretry=500
       # Secure headers middleware, see https://doc.traefik.io/traefik/v2.0/middlewares/headers/
       # This configuration pleases https://securityheaders.com/
       # https://doc.traefik.io/traefik/v2.0/middlewares/headers/#accesscontrolallowmethods
@@ -150,6 +150,12 @@ services:
     # info: https://korteke.medium.com/traefik-proxy-with-web-application-firewall-waf-cb4cd65f34f7
     image:  containous/whoami
     container_name: dummy
+    env_file:
+      - ./.env
+    networks:
+      # Use the public network created to be shared between Traefik and
+      # any other service that needs to be publicly available with HTTPS
+      - traefik-network
 
 networks:
   # Use the previously created public network "traefik-network", shared with other
