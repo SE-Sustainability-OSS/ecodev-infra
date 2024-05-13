@@ -16,12 +16,9 @@ services:
       - traefik.enable=true
       # Use the traefik-network network (defined in docker.compose.traefik.yml)
       - traefik.docker.network=traefik-network
-      # https-redirect middleware to redirect HTTP to HTTPS
-      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
-      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
       # Make Traefik use this domain in HTTP
-      - traefik.http.routers.minio.entrypoints=http
-      - traefik.http.routers.minio.rule=Host(`${minio_url}`)
+      - traefik.http.routers.minio-http.entrypoints=http
+      - traefik.http.routers.minio-http.rule=Host(`${minio_url}`)
       # Make Traefik use this domain in HTTPS
       - traefik.http.routers.minio-https.entrypoints=https
       - traefik.http.routers.minio-https.rule=Host(`${minio_url}`)
@@ -29,7 +26,8 @@ services:
       # Use the "le" (Let's Encrypt) resolver
       - traefik.http.routers.minio-https.tls.certresolver=le
       # Plug middleware to redirect HTTP to HTTPS
-      - traefik.http.routers.minio.middlewares=https-redirect
+      - traefik.http.routers.minio-http.middlewares=https-redirect
+      - traefik.http.routers.minio-https.middlewares=secured
       # Define the port inside the Docker service to use
       - traefik.http.services.minio.loadbalancer.server.port=9000
 
@@ -54,12 +52,9 @@ services:
       - traefik.enable=true
       # Use the traefik-network network (defined in docker.compose.traefik.yml)
       - traefik.docker.network=traefik-network
-      # https-redirect middleware to redirect HTTP to HTTPS
-      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
-      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
        # Make Traefik use this domain in HTTP
-      - traefik.http.routers.minio-admin.entrypoints=http
-      - traefik.http.routers.minio-admin.rule=Host(`${admin_minio_url}`)
+      - traefik.http.routers.minio-admin-http.entrypoints=http
+      - traefik.http.routers.minio-admin-http.rule=Host(`${admin_minio_url}`)
        # Make Traefik use this domain in HTTPS
       - traefik.http.routers.minio-admin-https.entrypoints=https
       - traefik.http.routers.minio-admin-https.rule=Host(`${admin_minio_url}`)
@@ -67,7 +62,8 @@ services:
       # Use the "le" (Let's Encrypt) resolver
       - traefik.http.routers.minio-admin-https.tls.certresolver=le
       # https-redirect middleware creation to redirect HTTP to HTTPS
-      - traefik.http.routers.minio-admin.middlewares=https-redirect
+      - traefik.http.routers.minio-admin-http.middlewares=https-redirect
+      - traefik.http.routers.minio-admin-https.middlewares=secured
       # Define the port inside the Docker service to use
       - traefik.http.services.minio-admin.loadbalancer.server.port=9000
     networks:

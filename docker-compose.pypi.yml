@@ -17,9 +17,6 @@ services:
       - traefik.enable=true
       # Use the traefik-network network (defined in docker.compose.traefik.yml)
       - traefik.docker.network=traefik-network
-      # https-redirect middleware to redirect HTTP to HTTPS
-      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
-      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
       # Make Traefik use this domain in HTTP
       - traefik.http.routers.pypi-api-http.entrypoints=http
       - traefik.http.routers.pypi-api-http.rule=Host(`${pypi_url}`)
@@ -31,6 +28,7 @@ services:
       - traefik.http.routers.pypi-api-https.tls.certresolver=le
       # Plug middleware to redirect HTTP to HTTPS
       - traefik.http.routers.pypi-api-http.middlewares=https-redirect
+      - traefik.http.routers.pypi-api-https.middlewares=secured
 
     networks:
       - app-network

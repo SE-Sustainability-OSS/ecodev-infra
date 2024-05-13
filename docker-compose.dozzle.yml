@@ -22,12 +22,9 @@ services:
       - traefik.http.routers.dozzle-https.tls=true
       # Use the "le" (Let's Encrypt) resolver
       - traefik.http.routers.dozzle-https.tls.certresolver=le
-      # https-redirect middleware to redirect HTTP to HTTPS
-      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
-      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
       # Plug middleware to redirect HTTP to HTTPS
       - traefik.http.routers.dozzle-http.middlewares=https-redirect
-      - traefik.http.routers.dozzle-https.middlewares=admin-auth
+      - traefik.http.routers.dozzle-https.middlewares=auth-secured
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     env_file:

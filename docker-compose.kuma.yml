@@ -22,12 +22,9 @@ services:
       - traefik.http.routers.kuma-https.tls=true
       # Use the "le" (Let's Encrypt) resolver
       - traefik.http.routers.kuma-https.tls.certresolver=le
-      # https-redirect middleware to redirect HTTP to HTTPS
-      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
-      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
       # Plug middleware to redirect HTTP to HTTPS
       - traefik.http.routers.kuma-http.middlewares=https-redirect
-      - traefik.http.routers.kuma-https.middlewares=admin-auth
+      - traefik.http.routers.kuma-https.middlewares=auth-secured
     volumes:
       - ./uptime_kuma_data:/app/data
     env_file:

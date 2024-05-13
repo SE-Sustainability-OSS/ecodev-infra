@@ -22,11 +22,9 @@ services:
       - traefik.http.routers.bookstack-https.tls=true
       # Use the "le" (Let's Encrypt) resolver
       - traefik.http.routers.bookstack-https.tls.certresolver=le
-      # https-redirect middleware creation to redirect HTTP to HTTPS
-      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
-      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
       # Plug middleware to redirect HTTP to HTTPS
       - traefik.http.routers.bookstack-http.middlewares=https-redirect
+      - traefik.http.routers.bookstack-https.middlewares=secured
     env_file:
       - ./.bookstack.env
     volumes:

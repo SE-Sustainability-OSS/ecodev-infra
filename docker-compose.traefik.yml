@@ -1,8 +1,20 @@
 services:
 
+  waf:
+    # see https://github.com/acouvreur/traefik-modsecurity-plugin for more information
+    image: owasp/modsecurity-crs:apache
+    container_name: waf
+    environment:
+      - BACKEND=http://dummy
+    env_file:
+      - ./.env
+    networks:
+      # Use the public network created to be shared between Traefik and
+      # any other service that needs to be publicly available with HTTPS
+      - traefik-network
   traefik:
-    # Use the latest v2.11.x Traefik image available
-    image: traefik:v2.11
+    # Use the latest v3.0.x Traefik image available
+    image: traefik:v3.0
     ports:
       # Listen on port 80, default for HTTP, necessary to redirect to HTTPS
       - 80:80
@@ -28,15 +40,75 @@ services:
       # Use the special Traefik service api@internal with the web UI/Dashboard
       - traefik.http.routers.traefik-dashboard-https.service=api@internal
       # https-redirect middleware to redirect HTTP to HTTPS
+      # https://doc.traefik.io/traefik/v2.0/middlewares/redirectscheme/
       - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
       - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
+      # Fail2ban middleware, see https://github.com/tomMoulard/fail2ban for more information
+      - traefik.https.middlewares.my-fail2ban.plugin.fail2ban.rules.bantime=1h
+      - traefik.https.middlewares.my-fail2ban.plugin.fail2ban.rules.enabled=true
+      - traefik.https.middlewares.my-fail2ban.plugin.fail2ban.rules.findtime=1m
+      - traefik.https.middlewares.my-fail2ban.plugin.fail2ban.rules.maxretry=200
+      # Secure headers middleware, see https://doc.traefik.io/traefik/v2.0/middlewares/headers/
+      # This configuration pleases https://securityheaders.com/
+      # https://doc.traefik.io/traefik/v2.0/middlewares/headers/#accesscontrolallowmethods
+      - traefik.http.middlewares.security-headers.headers.accesscontrolallowmethods=GET, OPTIONS, PUT
+      # https://doc.traefik.io/traefik/v2.0/middlewares/headers/#accesscontrolmaxage
+      - traefik.http.middlewares.security-headers.headers.accesscontrolmaxage=100
+      # https://doc.traefik.io/traefik/v2.0/middlewares/headers/#addvaryheader
+      # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Vary
+      - traefik.http.middlewares.security-headers.headers.addvaryheader=true
+      # https://doc.traefik.io/traefik/v2.0/middlewares/headers/#hostsproxyheaders
+      # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host
+      - traefik.http.middlewares.security-headers.headers.hostsproxyheaders=X-Forwarded-Host
+      # https://doc.traefik.io/traefik/v2.0/middlewares/headers/#sslredirect
+      - traefik.http.middlewares.security-headers.headers.sslredirect=true
+      # https://doc.traefik.io/traefik/v2.0/middlewares/headers/#sslproxyheaders
+      # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto
+      - traefik.http.middlewares.security-headers.headers.sslproxyheaders.X-Forwarded-Proto=https
+      # https://doc.traefik.io/traefik/v2.0/middlewares/headers/#stsseconds
+      - traefik.http.middlewares.security-headers.headers.stsseconds=63072000
+      # https://doc.traefik.io/traefik/v2.0/middlewares/headers/#stsincludesubdomains
+      # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
+      - traefik.http.middlewares.security-headers.headers.stsincludesubdomains=true
+      # https://doc.traefik.io/traefik/v2.0/middlewares/headers/#stspreload
+      # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security#preloading_strict_transport_security
+      - traefik.http.middlewares.security-headers.headers.stspreload=true
+      # https://doc.traefik.io/traefik/v2.0/middlewares/headers/#forcestsheader
+      - traefik.http.middlewares.security-headers.headers.forcestsheader=true
+      # https://doc.traefik.io/traefik/v2.0/middlewares/headers/#framedeny
+      # https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/X-Frame-Options
+      - traefik.http.middlewares.security-headers.headers.framedeny=true
+      # https://doc.traefik.io/traefik/v2.0/middlewares/headers/#contenttypenosniff
+      # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
+      - traefik.http.middlewares.security-headers.headers.contenttypenosniff=true
+      # https://doc.traefik.io/traefik/v2.0/middlewares/headers/#referrerpolicy
+      # https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Referrer-Policy
+      - traefik.http.middlewares.security-headers.headers.referrerpolicy=same-origin
+      # https://doc.traefik.io/traefik/v2.0/middlewares/headers/#customresponseheaders
+      # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy
+      - traefik.http.middlewares.security-headers.headers.customresponseheaders.permissions-policy=camera=(); microphone=(); geolocation=(); payment=(); usb=(); vr=();
+      # https://robots-txt.com/x-robots-tag/
+      - traefik.http.middlewares.security-headers.headers.customresponseheaders.X-Robots-Tag=none,noarchive,nosnippet,notranslate,noimageindex
+      # https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP
+      - traefik.http.middlewares.security-headers.headers.customresponseheaders.content-security-policy=style-src 'self' 'unsafe-inline';
+      # see https://github.com/traefik/traefik/issues/9859 for this particular corner case
+      # Needed to please https://www.hardenize.com/
+      # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection
+      - traefik.http.middlewares.security-headers.headers.customresponseheaders.X-XSS-Protection=0
+      # Waf middleware. See https://github.com/acouvreur/traefik-modsecurity-plugin for more info
+      - traefik.http.middlewares.waf.plugin.traefik-modsecurity-plugin.modSecurityUrl=http://waf:8080
+      - traefik.http.middlewares.waf.plugin.traefik-modsecurity-plugin.maxBodySize=10485760
+      # admin-auth middleware with HTTP Basic auth Using env variables USERNAME and HASHED_PASSWORD
+      # https://doc.traefik.io/traefik/v2.0/middlewares/basicauth/
+      - traefik.http.middlewares.admin-auth.basicauth.users=${traefik_username}:${traefik_hashed_password}
+      # Add secured middleware chain
+      - traefik.http.middlewares.secured.chain.middlewares=fail2ban,waf,security-headers
+      # Add auth-secured middleware chain
+      - traefik.http.middlewares.auth-secured.chain.middlewares=fail2ban,waf,security-headers,admin-auth
       # traefik-http set up only to use the middleware to redirect to https
       - traefik.http.routers.traefik-dashboard-http.middlewares=https-redirect
-      # admin-auth middleware with HTTP Basic auth
-      # Using the environment variables USERNAME and HASHED_PASSWORD
-      - traefik.http.middlewares.admin-auth.basicauth.users=${traefik_username}:${traefik_hashed_password}
-      # Enable HTTP Basic auth, using the middleware created above
-      - traefik.http.routers.traefik-dashboard-https.middlewares=admin-auth
+      # Enable auth-secured chain, using the middleware chain created above
+      - traefik.http.routers.traefik-dashboard-https.middlewares=auth-secured
     volumes:
       # Add Docker as a mounted volume, so that Traefik can read the labels of other services
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -61,12 +133,23 @@ services:
       - --accesslog
       # Enable the Traefik log, for configurations and errors. Set debug log level
       - --log.level=DEBUG
+      # Add fail2ban plugin
+      - --experimental.plugins.fail2ban.modulename=github.com/tomMoulard/fail2ban
+      - --experimental.plugins.fail2ban.version=v0.7.1
+      # Add waf plugin
+      - --experimental.plugins.traefik-modsecurity-plugin.modulename=github.com/acouvreur/traefik-modsecurity-plugin
+      - --experimental.plugins.traefik-modsecurity-plugin.version=v1.3.0
       # Enable the Dashboard and API
       - --api
     networks:
       # Use the public network created to be shared between Traefik and
       # any other service that needs to be publicly available with HTTPS
       - traefik-network
+  dummy:
+    # Subtlety to trick waf and avoid one of this for every service we want to protect with waf
+    # info: https://korteke.medium.com/traefik-proxy-with-web-application-firewall-waf-cb4cd65f34f7
+    image:  containous/whoami
+    container_name: dummy
 
 networks:
   # Use the previously created public network "traefik-network", shared with other
