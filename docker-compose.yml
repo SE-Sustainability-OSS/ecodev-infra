@@ -40,11 +40,9 @@ services:
       - traefik.http.routers.pgadmin-https.tls=true
       # Use the "le" (Let's Encrypt) resolver
       - traefik.http.routers.pgadmin-https.tls.certresolver=le
-      # https-redirect middleware creation to redirect HTTP to HTTPS
-      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
-      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
       # Plug middleware to redirect HTTP to HTTPS
       - traefik.http.routers.pgadmin-http.middlewares=https-redirect
+      - traefik.http.routers.pgadmin-https.middlewares=secured
     env_file:
       - ./.env
     networks:

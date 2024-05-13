@@ -22,11 +22,9 @@ services:
       - traefik.http.routers.keycloak-https.tls=true
       # Use the "le" (Let's Encrypt) resolver
       - traefik.http.routers.keycloak-https.tls.certresolver=le
-      # https-redirect middleware creation to redirect HTTP to HTTPS
-      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
-      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
       # Plug middleware to redirect HTTP to HTTPS
       - traefik.http.routers.keycloak-http.middlewares=https-redirect
+      - traefik.http.routers.keycloak-https.middlewares=secured
     env_file:
       - ./.keycloak.env
     depends_on:

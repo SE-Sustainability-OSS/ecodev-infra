@@ -28,7 +28,7 @@ sudo cp after.rules /etc/ufw/after.rules
 sudo ufw reload
 echo "Setup ufw: block all but 22, 80 (tcp only) and 443 (tcp only) ports"
 sudo ufw default deny
-sudo ufw allow 22
+sudo ufw limit ssh
 sudo ufw route allow proto tcp from any to any port 80
 sudo ufw route allow proto tcp from any to any port 443
 echo "Turning ufw log"
