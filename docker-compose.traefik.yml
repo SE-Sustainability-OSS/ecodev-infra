@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
 
   waf:
@@ -77,7 +79,10 @@ services:
       - traefik.http.middlewares.security-headers.headers.forcestsheader=true
       # https://doc.traefik.io/traefik/v2.0/middlewares/headers/#framedeny
       # https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/X-Frame-Options
-      - traefik.http.middlewares.security-headers.headers.framedeny=true
+      # If used with pgadmin, too restrictive https://www.pgadmin.org/docs/pgadmin4/development/config_py.html
+      # - traefik.http.middlewares.security-headers.headers.framedeny=true
+      # Less restrictive but still restrictive  https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/X-Frame-Options
+      - traefik.http.middlewares.security-headers.headers.customFrameOptionsValue=sameorigin
       # https://doc.traefik.io/traefik/v2.0/middlewares/headers/#contenttypenosniff
       # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
       - traefik.http.middlewares.security-headers.headers.contenttypenosniff=true
