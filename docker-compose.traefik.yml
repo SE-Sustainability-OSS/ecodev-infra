@@ -4,12 +4,14 @@ services:
 
   waf:
     # see https://github.com/acouvreur/traefik-modsecurity-plugin for more information
-    image: owasp/modsecurity-crs:apache
+    image: owasp/modsecurity-crs:nginx
     container_name: waf
     environment:
       - BACKEND=http://dummy
     env_file:
       - ./.env
+    volumes:
+      - ./RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf:/etc/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf
     networks:
       # Use the public network created to be shared between Traefik and
       # any other service that needs to be publicly available with HTTPS
