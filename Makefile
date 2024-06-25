@@ -74,4 +74,5 @@ mongo-launch:            ##@prod Launch mongo production container
 chroma-launch:            ##@prod Launch chroma production container
 	docker compose -f docker-compose.chroma.yml up -d
 
-  
+es-launch:            ##@prod Launch elastic search production container
+	docker compose -f docker-compose.elasticsearch.yml up -d

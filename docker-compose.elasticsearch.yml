@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  # BEGIN es-db
+  es-db:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.14.1
+    container_name: es-db
+    volumes:
+      - ${ES_DATA:-./es-data}:/usr/share/elasticsearch/data
+    ports:
+      - ${ES_PORT:-9200}:9200
+    env_file:
+      - ./.env
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      - xpack.license.self_generated.type=basic
+    mem_limit: ${ES_MEM_LIMIT}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - red-base-network
+  # END es-db
+
+networks:
+  red-base-network:
+    external: true
