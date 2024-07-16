@@ -7,8 +7,6 @@ services:
     container_name: es-db
     volumes:
       - ${ES_DATA:-./es-data}:/usr/share/elasticsearch/data
-    ports:
-      - ${ES_PORT:-9200}:9200
     env_file:
       - ./.env
     environment:
