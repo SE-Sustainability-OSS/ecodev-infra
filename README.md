@@ -1,4 +1,6 @@
-# Docker-compose devoops
+# Ecodev-infra
+
+Documentation can be found [here](https://ecodev-doc.lcabox.com/cookiecutters/infra/)
 
 Repo taking off the shelf docker images for 
 - traefik
@@ -18,4 +20,3 @@ Repo taking off the shelf docker images for
 <p align="center">
 </p>
 
-Documentation can be found [here](https://ecodev-doc.lcabox.com/cookiecutters/infra/)
