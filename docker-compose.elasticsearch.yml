@@ -5,6 +5,7 @@ services:
   es-db:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.14.1
     container_name: es-db
+    restart: always
     volumes:
       - ${ES_DATA:-./es-data}:/usr/share/elasticsearch/data
     env_file:
