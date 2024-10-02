@@ -1,0 +1,10 @@
+services:
+  postgis_db_admin:
+    ports:
+      - ${postgis_pgadmin_port:-5052}:80
+    env_file:
+      - ./.postgis.env
+
+networks:
+  traefik-network:
+    external: false
