@@ -47,6 +47,12 @@ db-launch:            ##@prod Launch db production containers
 db-dev-launch:            ##@dev Launch db dev containers
 	docker compose up -d
 
+postgisprod-launch:            ##@prod Launch postgis db production containers
+	docker compose -f docker-compose.postgis.yml  up -d
+
+postgisdev-launch:            ##@prod Launch postgis db development containers
+	docker compose -f docker-compose.postgis.yml -f docker-compose.postgis.override.yml up -d
+
 minio-launch:            ##@prod Launch minio production containers
 	docker compose -f docker-compose.minio.yml -f docker-compose.minio.override.yml up -d
 
