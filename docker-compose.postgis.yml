@@ -51,6 +51,6 @@ services:
 
 networks:
   app-network:
-    name: app
+    name: app-network
   traefik-network:
     external: true
