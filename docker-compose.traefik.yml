@@ -6,6 +6,7 @@ services:
     # see https://github.com/acouvreur/traefik-modsecurity-plugin for more information
     image: owasp/modsecurity-crs:nginx
     container_name: waf
+    restart: always
     environment:
       - BACKEND=http://dummy
     env_file:
@@ -156,6 +157,7 @@ services:
     # Subtlety to trick waf and avoid one of this for every service we want to protect with waf
     # info: https://korteke.medium.com/traefik-proxy-with-web-application-firewall-waf-cb4cd65f34f7
     image:  containous/whoami
+    restart: always
     container_name: dummy
     env_file:
       - ./.env
