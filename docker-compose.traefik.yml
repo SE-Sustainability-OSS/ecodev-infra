@@ -13,6 +13,7 @@ services:
       - ./.env
     volumes:
       - ./RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf:/etc/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf
+      - ./REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
     networks:
       # Use the public network created to be shared between Traefik and
       # any other service that needs to be publicly available with HTTPS
@@ -20,6 +21,7 @@ services:
   traefik:
     # Use the latest v3.0.x Traefik image available
     image: traefik:v3.0
+    container_name: traefik
     ports:
       # Listen on port 80, default for HTTP, necessary to redirect to HTTPS
       - 80:80
