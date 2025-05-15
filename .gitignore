@@ -24,5 +24,5 @@ bookstack_app_data/
 bookstack_db_data/
 bookstack_storage_data/
 #ignoring environment file
-.env
+*.env
 .bookstack.env
