@@ -5,6 +5,7 @@ services:
   ofelia:
     image: mcuadros/ofelia:latest
     restart: always
+    container_name: ofelia
     environment:
       TZ: Europe/Paris
     command: daemon --docker
