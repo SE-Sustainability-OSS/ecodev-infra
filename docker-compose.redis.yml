@@ -1,0 +1,51 @@
+services:
+  # BEGIN redis
+  redis_db:
+    image: bitnami/redis:latest
+    restart: always
+    container_name: redis_db
+    volumes:
+      - ./redis_cache:/data
+    environment:
+      REDIS_PASSWORD: $redis_password
+      REDIS_MASTER_PASSWORD: $redis_password
+    networks:
+      - red-base-network
+  # END redis
+  # END redis_admin
+  redis_admin:
+    image: redis/redisinsight:latest
+    container_name: redis_admin
+    volumes:
+      - ./redis_admin_data/:/data
+    labels:
+      # Enable Traefik for this specific "redis_admin" service
+      - traefik.enable=true
+      # Define the port inside of the Docker service to use
+      - traefik.http.services.redisadmin.loadbalancer.server.port=5540
+      # Make Traefik use this domain in HTTP
+      - traefik.http.routers.redisadmin-http.entrypoints=http
+      - traefik.http.routers.redisadmin-http.rule=Host(`${redisadmin_url}`)
+      # Use the traefik-network network (declared below)
+      - traefik.docker.network=traefik-network
+      # Make Traefik use this domain in HTTPS
+      - traefik.http.routers.redisadmin-https.entrypoints=https
+      - traefik.http.routers.redisadmin-https.rule=Host(`${redisadmin_url}`)
+      - traefik.http.routers.redisadmin-https.tls=true
+      # Use the "le" (Let's Encrypt) resolver
+      - traefik.http.routers.redisadmin-https.tls.certresolver=le
+      # Middleware to redirect HTTP to HTTPS
+      - traefik.http.routers.redisadmin-http.middlewares=https-redirect
+      - traefik.http.routers.redisadmin-https.middlewares=secured
+    networks:
+      - red-base-network
+      - traefik-network
+    depends_on:
+      - redis_db
+  # END redis_admin
+
+networks:
+  red-base-network:
+    external: true
+  traefik-network:
+    external: true

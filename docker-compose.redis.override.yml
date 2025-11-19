@@ -1,0 +1,8 @@
+services:
+  redis_admin:
+    ports:
+      - ${redis_admin_port:-5540}:5540
+
+networks:
+  traefik-network:
+    external: false
